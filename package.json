@@ -1,0 +1,13 @@
+{
+  "main": "index.js",
+  "scripts": {
+    "server": "concurrently -k npm:server:*",
+    "server:graphql": "nodemon index.js"
+  },
+  "dependencies": {
+    "@apollo/federation": "^0.22.0",
+    "@apollo/gateway": "^0.24.4",
+    "apollo-server": "^2.21.1",
+    "graphql": "^15.5.0"
+  }
+}
