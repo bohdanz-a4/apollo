@@ -1,4 +1,5 @@
 using GraphQL.Server;
+using GraphQlApi.Models;
 using GraphQlApi.Queries;
 using GraphQlApi.Schemas;
 using Microsoft.AspNetCore.Builder;
@@ -23,6 +24,9 @@ namespace GraphQlApi
         {
             services.AddControllers();
 
+            services.AddSingleton<DroidType>();
+            services.AddSingleton<EpisodeEnum>();
+
             services.AddSingleton<DroidQuery>();
             services.AddSingleton<DroidSchema>();
 
@@ -33,6 +37,10 @@ namespace GraphQlApi
                 .AddWebSockets()
                 .AddDataLoader()
                 .AddSystemTextJson()
+                .AddErrorInfoProvider(options =>
+                {
+                    options.ExposeExceptionStackTrace = true; // todo: dev only!!!
+                })
                 .AddGraphTypes(typeof(DroidSchema));
         }
 
