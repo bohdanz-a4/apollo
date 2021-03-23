@@ -1,12 +1,12 @@
 using GraphQL.Server;
-using GraphQlApi.Models;
-using GraphQlApi.Queries;
+using GraphQL.Server.Ui.GraphiQL;
 using GraphQlApi.Schemas;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace GraphQlApi
 {
@@ -22,25 +22,21 @@ namespace GraphQlApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-
-            services.AddSingleton<DroidType>();
-            services.AddSingleton<EpisodeEnum>();
-
-            services.AddSingleton<DroidQuery>();
+            //services.AddSingleton<DroidType>();
+            //services.AddSingleton<EpisodeEnum>();
+            //services.AddSingleton<DroidQuery>();
             services.AddSingleton<DroidSchema>();
 
-            services.AddGraphQL(options =>
+            services.AddGraphQL((options, provider) =>
             {
                 options.EnableMetrics = true;
+                var logger = provider.GetRequiredService<ILogger<Startup>>();
+                options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
             })
+                .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { })
+                .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = true)
                 .AddWebSockets()
                 .AddDataLoader()
-                .AddSystemTextJson()
-                .AddErrorInfoProvider(options =>
-                {
-                    options.ExposeExceptionStackTrace = true; // todo: dev only!!!
-                })
                 .AddGraphTypes(typeof(DroidSchema));
         }
 
@@ -49,28 +45,22 @@ namespace GraphQlApi
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-
-            app.UseGraphiQLServer(new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
-            {
-                GraphQLEndPoint = "/graphql",
-                Path = "/ui/graphiql"
-            });
             app.UseWebSockets();
             app.UseGraphQLWebSockets<DroidSchema>();
-            app.UseGraphQL<DroidSchema>();
+            app.UseGraphQL<DroidSchema, GraphQLHttpMiddlewareWithLogs<DroidSchema>>();
+
+            app.UseGraphQLGraphiQL(new GraphiQLOptions
+            {
+                //Headers = new Dictionary<string, string>
+                //{
+                //    ["X-api-token"] = "130fh9823bd023hd892d0j238dh",
+                //}
+            });
         }
     }
 }

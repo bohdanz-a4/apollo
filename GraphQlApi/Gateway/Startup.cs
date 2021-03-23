@@ -1,14 +1,10 @@
+using GraphQL.Server.Ui.GraphiQL;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Gateway
 {
@@ -48,10 +44,12 @@ namespace Gateway
             {
                 endpoints.MapGraphQL();
             });
-            app.UseGraphiQLServer(new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
+            app.UseGraphQLGraphiQL(new GraphiQLOptions
             {
-                GraphQLEndPoint = "/graphql",
-                Path = "/ui/graphiql"
+                //Headers = new Dictionary<string, string>
+                //{
+                //    ["X-api-token"] = "130fh9823bd023hd892d0j238dh",
+                //}
             });
         }
     }
