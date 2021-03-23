@@ -22,9 +22,6 @@ namespace GraphQlApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddSingleton<DroidType>();
-            //services.AddSingleton<EpisodeEnum>();
-            //services.AddSingleton<DroidQuery>();
             services.AddSingleton<DroidSchema>();
 
             services.AddGraphQL((options, provider) =>
@@ -45,14 +42,12 @@ namespace GraphQlApi
         {
             if (env.IsDevelopment())
             {
-                //app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage();
             }
-
-            //app.UseHttpsRedirection();
 
             app.UseWebSockets();
             app.UseGraphQLWebSockets<DroidSchema>();
-            app.UseGraphQL<DroidSchema, GraphQLHttpMiddlewareWithLogs<DroidSchema>>();
+            app.UseGraphQL<DroidSchema>();
 
             app.UseGraphQLGraphiQL(new GraphiQLOptions
             {
