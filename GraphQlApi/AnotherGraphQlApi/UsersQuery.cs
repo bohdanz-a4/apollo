@@ -9,7 +9,7 @@ namespace AnotherGraphQlApi
             Name = "UsersQuery";
             Field<UserType>("user", arguments: new QueryArguments
             {
-                new QueryArgument<IdGraphType>
+                new QueryArgument<IntGraphType>
                 {
                     Name = "id"
                 }

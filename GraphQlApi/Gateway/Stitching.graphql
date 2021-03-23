@@ -1,3 +1,5 @@
 ﻿extend type Query {
 	droids: [Droid] @delegate(schema: "droids")
+	others: [Droid] @delegate(schema: "droids", path: "droids")
+	user(id: Int): User @delegate(schema: "users", path: "user(id: $arguments:id)")
 }
