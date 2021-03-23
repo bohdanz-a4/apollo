@@ -6,6 +6,7 @@ namespace AnotherGraphQlApi
     {
         public UserType()
         {
+            Name = "User";
             Field(u => u.Id);
             Field(u => u.Name);
         }

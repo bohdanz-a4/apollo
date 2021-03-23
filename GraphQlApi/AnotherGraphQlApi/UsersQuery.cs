@@ -2,7 +2,7 @@
 
 namespace AnotherGraphQlApi
 {
-    public class UsersQuery : ObjectGraphType
+    public class UsersQuery : ObjectGraphType<User>
     {
         public UsersQuery()
         {

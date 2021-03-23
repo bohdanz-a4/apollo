@@ -20,11 +20,13 @@ namespace Gateway
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpClient("droids", c => c.BaseAddress = new Uri("http://localhost:5000/graphql"));
+            services.AddHttpClient("droids", c => c.BaseAddress = new Uri("http://localhost:5001/graphql"));
+            services.AddHttpClient("users", c => c.BaseAddress = new Uri("http://localhost:5002/graphql"));
 
             services.AddGraphQLServer()
-                .AddQueryType<Query>()
+                .AddQueryType(d => d.Name("Query"))
                 .AddRemoteSchema("droids", ignoreRootTypes: true)
+                .AddRemoteSchema("users", ignoreRootTypes: true)
                 .AddTypeExtensionsFromFile("./Stitching.graphql");
         }
 
