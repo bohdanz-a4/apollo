@@ -1,12 +1,13 @@
+using GraphQL.Server;
 using GraphQL.Server.Ui.GraphiQL;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
+using Microsoft.Extensions.Logging;
 
-namespace Gateway
+namespace AnotherGraphQlApi
 {
     public class Startup
     {
@@ -20,14 +21,19 @@ namespace Gateway
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpClient("droids", c => c.BaseAddress = new Uri("http://localhost:5001/graphql"));
-            services.AddHttpClient("users", c => c.BaseAddress = new Uri("http://localhost:5002/graphql"));
+            services.AddSingleton<UsersSchema>();
 
-            services.AddGraphQLServer()
-                .AddQueryType(d => d.Name("Query"))
-                .AddRemoteSchema("droids", ignoreRootTypes: true)
-                .AddRemoteSchema("users", ignoreRootTypes: true)
-                .AddTypeExtensionsFromFile("./Stitching.graphql");
+            services.AddGraphQL((options, provider) =>
+            {
+                options.EnableMetrics = true;
+                var logger = provider.GetRequiredService<ILogger<Startup>>();
+                options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
+            })
+                .AddSystemTextJson(deserializerSettings => { }, serializerSettings => { })
+                .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = true)
+                .AddWebSockets()
+                .AddDataLoader()
+                .AddGraphTypes(typeof(UsersSchema));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,14 +44,10 @@ namespace Gateway
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseRouting();
+            app.UseWebSockets();
+            app.UseGraphQLWebSockets<UsersSchema>();
+            app.UseGraphQL<UsersSchema>();
 
-            //app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGraphQL();
-            });
             app.UseGraphQLGraphiQL(new GraphiQLOptions
             {
                 //Headers = new Dictionary<string, string>
